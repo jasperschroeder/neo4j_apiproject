@@ -1,6 +1,5 @@
 package main
 
-// tag::import[]
 import (
 	"encoding/json"
 	"io/ioutil"

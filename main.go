@@ -11,7 +11,6 @@ import (
 	"context"
 )
 
-// returnJsonResponse: return the JSON-formatted response via HTTP
 func returnJsonResponse(res http.ResponseWriter, httpCode int, resMessage []byte) {
 	res.Header().Set("Content-type", "application/json")
 	res.WriteHeader(httpCode)
@@ -91,29 +90,6 @@ func main() {
 		actorrankingstring := queries.ActorRanking(session, limitParam)
 		json.NewEncoder(w).Encode(actorrankingstring)
 	}
-
-	// Shutdown := func(w http.ResponseWriter, r *http.Request) {
-	// 	w.Write([]byte("Server Shutdown."))
-	// 	go func() {
-	// 		if err := http.Shutdown(context.Background());
-	// 		err != nil {
-	// 			log.Fatal(err)
-	// 		}
-	// 	}()
-	// }
-
-
-
-	// http.HandleFunc("/", StartingPage)
-	// http.HandleFunc("/movies", Moviepage)
-	// http.HandleFunc("/persons", Personpage)
-	// http.HandleFunc("/actors", Actorpage)
-	// http.HandleFunc("/reviewers", Reviewerpage)
-	// http.HandleFunc("/rankings", RankingPages)
-	// http.HandleFunc("/rankings/reviewranking", ReviewRanking)
-	// http.HandleFunc("/rankings/actorranking", ActorRanking)
-	// http.HandleFunc("/shutdown", Shutdown)
-	// log.Fatal(http.ListenAndServe(":1000", nil))
 
 	m := http.NewServeMux()
 	s := http.Server{Addr: ":1000", Handler: m}
