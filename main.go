@@ -101,17 +101,20 @@ func main() {
 	m.HandleFunc("/rankings", RankingPages)
 	m.HandleFunc("/rankings/reviewranking", ReviewRanking)
 	m.HandleFunc("/rankings/actorranking", ActorRanking)
+
 	m.HandleFunc("/shutdown", func(w http.ResponseWriter, r *http.Request) {
-        w.Write([]byte("Goodbye!"))
-        go func() {
-            if err := s.Shutdown(context.Background()); err != nil {
-                log.Fatal(err)
-            }
-        }()
+		password := r.URL.Query()["password"]
+
+		if password == nil {
+			fmt.Fprintf(w, "Please provide a password as a parameter via the query.")
+		} else if  password[0] !=  "ShutdownPassword" {
+			fmt.Fprintf(w, "That was not the correct password.")
+		} else {
+			w.Write([]byte("Goodbye!"))
+			go func() {if err := s.Shutdown(context.Background()); err != nil {log.Fatal(err)}}()
+		}
     })
-    if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-        log.Fatal(err)
-    }
+    if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {log.Fatal(err)}
     log.Printf("Finished")
 
 
