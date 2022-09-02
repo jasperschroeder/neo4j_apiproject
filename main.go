@@ -9,6 +9,7 @@ import (
 	"log"
 	"strconv"
 	"context"
+	"time"
 )
 
 func returnJsonResponse(res http.ResponseWriter, httpCode int, resMessage []byte) {
@@ -93,7 +94,30 @@ func main() {
 
 	m := http.NewServeMux()
 	s := http.Server{Addr: ":1000", Handler: m}
-	m.HandleFunc("/", StartingPage)
+	m.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" && r.URL.Path != "" {
+			http.NotFound(w, r)
+			return 
+		}
+		fmt.Fprintf(w, "Welcome to the home page!")
+	})
+	m.HandleFunc("/welcome", StartingPage)
+	m.HandleFunc("/redirect/", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/welcome", 303)
+	})
+
+	expires := time.Now().AddDate(1, 0, 0)
+	ck := http.Cookie{
+		Name: "COOKIE",
+		Path: "/cookie",
+		Expires: expires,
+	}
+	ck.Value = "Test value."
+		m.HandleFunc("/cookie", func(w http.ResponseWriter, r *http.Request) {
+			http.SetCookie(w, &ck)
+			fmt.Fprintf(w, "Cookie is being set.")
+	})
+
 	m.HandleFunc("/movies", Moviepage)
 	m.HandleFunc("/persons", Personpage)
 	m.HandleFunc("/actors", Actorpage)
@@ -101,10 +125,8 @@ func main() {
 	m.HandleFunc("/rankings", RankingPages)
 	m.HandleFunc("/rankings/reviewranking", ReviewRanking)
 	m.HandleFunc("/rankings/actorranking", ActorRanking)
-
 	m.HandleFunc("/shutdown", func(w http.ResponseWriter, r *http.Request) {
 		password := r.URL.Query()["password"]
-
 		if password == nil {
 			fmt.Fprintf(w, "Please provide a password as a parameter via the query.")
 		} else if  password[0] !=  "ShutdownPassword" {
@@ -116,9 +138,4 @@ func main() {
     })
     if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {log.Fatal(err)}
     log.Printf("Finished")
-
-
-
-
-	
 }
